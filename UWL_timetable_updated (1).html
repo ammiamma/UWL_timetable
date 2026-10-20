@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>University of West London - Timetable</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #111;
+    background: #fff;
+    font-size: 12px;
+  }
+  .top {
+    height: 54px;
+    display: flex;
+    align-items: center;
+    padding: 4px 10px 3px 12px;
+    border-bottom: 1px solid #bcbcbc;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    min-width: 420px;
+  }
+  .mark {
+    width: 39px;
+    height: 39px;
+    margin-right: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .mark:before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0;
+    width: 17px; height: 39px;
+    background: #7b8792;
+    transform: skewY(28deg);
+    transform-origin: top;
+  }
+  .mark:after {
+    content: "";
+    position: absolute;
+    right: 1px; top: 0;
+    width: 18px; height: 39px;
+    background: #174f86;
+    clip-path: polygon(0 0,100% 0,100% 100%,20% 100%);
+  }
+  .brand h1 {
+    margin: 0;
+    font-family: Georgia, serif;
+    font-size: 18px;
+    font-weight: normal;
+    color: #173f6d;
+    line-height: 18px;
+  }
+  .brand small {
+    display: block;
+    color: #666;
+    font-size: 8px;
+    font-weight: bold;
+    letter-spacing: .1px;
+  }
+  .nav {
+    margin-left: auto;
+    align-self: flex-start;
+    padding-top: 15px;
+    white-space: nowrap;
+  }
+  .nav a {
+    color: #0056a6;
+    text-decoration: none;
+    margin-left: 22px;
+    font-size: 12px;
+  }
+  .bluebar {
+    height: 37px;
+    background: #1262a5;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    border-radius: 3px 3px 0 0;
+  }
+  .rounds {
+    display: flex;
+    gap: 5px;
+    width: 78px;
+  }
+  .round {
+    width: 19px; height: 19px;
+    border: 1px solid #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+  }
+  .my {
+    font-weight: bold;
+    font-size: 12px;
+  }
+  .week {
+    margin: 0 auto;
+    font-weight: bold;
+    font-size: 12px;
+  }
+  .icons {
+    display: flex; gap: 7px;
+  }
+  .icon {
+    width: 19px; height: 19px;
+    border: 1px solid #fff;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+  }
+
+  .calendar {
+    border: 1px solid #d1d1d1;
+    border-top: 0;
+    height: 650px;
+    overflow: hidden;
+    position: relative;
+  }
+  .days {
+    height: 52px;
+    display: grid;
+    grid-template-columns: 41px repeat(5, 1fr);
+    background: #eee;
+    border-bottom: 1px solid #c9c9c9;
+  }
+  .days > div {
+    border-right: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 16px;
+  }
+  .days .blank { background: #eee; }
+  .dayname { color: #002f6c; font-size: 10px; }
+  .date { font-size: 10px; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 41px repeat(5, 1fr);
+    height: 598px;
+    position: relative;
+  }
+  .times {
+    background: #f4f4f4;
+    border-right: 1px solid #c8c8c8;
+  }
+  .time {
+    height: 66px;
+    border-bottom: 1px solid #d7d7d7;
+    text-align: right;
+    padding: 7px 4px 0 0;
+    color: #00549c;
+    font-weight: bold;
+    font-size: 10px;
+  }
+  .col {
+    position: relative;
+    border-right: 1px solid #ccc;
+    background-image:
+      repeating-linear-gradient(to bottom,
+        transparent 0px, transparent 18px,
+        #e1e1e1 18px, #e1e1e1 19px);
+  }
+  .col::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0;
+    top: 0;
+    height: 100%;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(to bottom,
+      transparent 0px, transparent 65px,
+      #cfcfcf 65px, #cfcfcf 66px);
+  }
+
+  .event {
+    position: absolute;
+    left: 1px;
+    right: 0;
+    background: #eeeeee;
+    border: 1px solid #555;
+    padding: 7px 6px;
+    overflow: hidden;
+    z-index: 2;
+    font-size: 9px;
+    line-height: 12px;
+  }
+  .event strong {
+    display: block;
+    font-size: 12px;
+    line-height: 14px;
+    margin-bottom: 5px;
+    font-weight: normal;
+  }
+  .event .time2 {
+    font-size: 10px;
+    margin-bottom: 3px;
+  }
+  .event .small { font-size: 9px; }
+  .advanced {
+    top: 66px;        /* 10:00 */
+    height: 198px;    /* 10:00–13:00 */
+  }
+  .bigdata {
+    top: 330px;       /* 2:00 pm */
+    height: 198px;    /* 14:00–17:00 */
+  }
+  .footer {
+    height: 25px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    border-top: 1px solid #c7c7c7;
+    color: #07589f;
+    font-size: 10px;
+  }
+  .footer-right {
+    margin-left: auto;
+    color: #111;
+  }
+  .access { margin-right: 18px; }
+  .cmis {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    margin-right: 7px;
+  }
+  .about { color: #222; }
+
+  @media (max-width: 900px) {
+    body { min-width: 900px; }
+  }
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="brand">
+      <div class="mark"></div>
+      <div>
+        <h1>UNIVERSITY OF WEST LONDON</h1>
+        <small>The Career University</small>
+      </div>
+    </div>
+    <div class="nav">
+      <a>Academic Year: 202627</a>
+      <a>Timetables</a>
+      <a>Bookings</a>
+      <a>Administration</a>
+      <a>Help</a>
+    </div>
+  </div>
+
+  <div class="bluebar">
+    <div class="rounds">
+      <div class="round">‹</div><div class="round">◉</div><div class="round">›</div>
+    </div>
+    <div class="my">My Timetable</div>
+    <div class="week">18 October 2026 - 22 October 2026 - Semester 1 Week 4</div>
+    <div class="icons"><div class="icon">▦</div><div class="icon">▣</div><div class="icon">?</div></div>
+  </div>
+
+  <div class="calendar">
+    <div class="days">
+      <div class="blank"></div>
+      <div><span class="dayname">Sunday</span><span class="date">18 October 2026</span></div>
+      <div><span class="dayname">Monday</span><span class="date">19 October 2026</span></div>
+      <div><span class="dayname">Tuesday</span><span class="date">20 October 2026</span></div>
+      <div><span class="dayname">Wednesday</span><span class="date">21 October 2026</span></div>
+      <div><span class="dayname">Thursday</span><span class="date">22 October 2026</span></div>
+    </div>
+
+    <div class="grid">
+      <div class="times">
+        <div class="time">9AM</div>
+        <div class="time">10AM</div>
+        <div class="time">11AM</div>
+        <div class="time">12PM</div>
+        <div class="time">1PM</div>
+        <div class="time">2PM</div>
+        <div class="time">3PM</div>
+        <div class="time">4PM</div>
+        <div class="time">5PM</div>
+      </div>
+
+      <div class="col"></div>
+      <div class="col"></div>
+      <div class="col">
+        <div class="event" style="top:198px;height:150px;">
+          <strong>Analysis Report : Current Issues in Accounting and<br>Financial Management</strong>
+          <div class="time2">12:00 pm to 2:00 pm</div>
+          <div class="small">All Term/Semester Teaching Activities</div>
+          <div class="small">Brentford, PH610 (25)</div>
+          <div class="small">Wkly 29Sep to 6Oct, Every 2wks 20Oct to 3Nov, 10Nov</div>
+          <div class="small">Izdil Jaya</div>
+          <div class="small">WORKSHOP</div>
+        </div>
+      </div>
+      <div class="col"></div>
+
+      <div class="col">
+        <div class="event advanced">
+          <strong>Advanced Financial Management</strong>
+          <div class="time2">10:00 am to 1:00 pm</div>
+          <div class="small">All Term/Semester Teaching Activities</div>
+          <div class="small">Ealing, BGYF01 (32)</div>
+          <div class="small">Every 2wks Oct 15 to Oct 15, Every 2wks 22Oct to 17Dec</div>
+          <div class="small">Siddiqi Fawad</div>
+          <div class="small">WORKSHOP</div>
+        </div>
+
+        <div class="event bigdata">
+          <strong>Big Data Analytics</strong>
+          <div class="time2">2:00 pm to 5:00 pm</div>
+          <div class="small">All Term/Semester Teaching Activities</div>
+          <div class="small">Ealing, BGYF01 (32)</div>
+          <div class="small">Every 2wks Oct 15 to Oct 15, Every 2wks 22Oct to 17Dec</div>
+          <div class="small">Siddiqi Fawad</div>
+          <div class="small">WORKSHOP</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Timetabled events last full update 12:00 am on 20 October 2026</span>
+    <div class="footer-right">
+      <span class="access">Accessibility statement</span>
+      <span class="cmis">cmisgo</span><span class="about">About</span>
+    </div>
+  </div>
+</body>
+</html>
